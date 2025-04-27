@@ -1,0 +1,23 @@
+Versioning and Template Management
+  Setting Up Git Repositories for CloudFormation
+  Example Structure:
+  /cloudformation/
+    ├── networking/
+    │   ├── vpc.yaml
+    │   ├── subnets.yaml
+    ├── security/
+    │   ├── security-groups.yaml
+    ├── compute/
+        ├── ec2.yaml
+        ├── autoscaling.yaml
+  Stack Updates and Change Set Management
+    Creating and Executing Change Sets
+    Example CLI Command:
+      aws cloudformation create-change-set \
+      --stack-name my-app-stack \
+      --template-body file://updated-template.yaml \
+      --change-set-name my-change-set
+  Testing, Validating, and Auditing Templates
+    Using cloudformation validate-template for Syntax Checking
+    Example CLI command:
+    aws cloudformation validate-template --template-body file://network-setup.yam
