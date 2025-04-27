@@ -1,0 +1,69 @@
+Writing Basic CloudFormation Templates for Networking
+  1. Defining the Template Structure
+    AWSTemplateFormatVersion: '2010-09-09'
+    Description: Basic VPC Setup
+    Resources:
+    # VPC, Subnets, and other components go here
+  2. Creating a Virtual Private Cloud (VPC)
+    MyVPC:
+      Type: AWS::EC2::VPC
+      Properties:
+        CidrBlock: 10.0.0.0/16
+        EnableDnsSupport: true
+        EnableDnsHostnames: true
+        Tags:
+          - Key: Name
+            Value: MyBasicVPC
+  3. Adding Public and Private Subnets
+    PublicSubnet1:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId: !Ref MyVPC
+        CidrBlock: 10.0.1.0/24
+        AvailabilityZone: !Select [ 0, !GetAZs '' ]
+        MapPublicIpOnLaunch: true
+        Tags:
+          - Key: Name
+            Value: PublicSubnet1
+    PrivateSubnet1:
+      Type: AWS::EC2::Subnet
+      Properties:
+        VpcId: !Ref MyVPC
+        CidrBlock: 10.0.2.0/24
+        AvailabilityZone: !Select [ 0, !GetAZs '' ]
+        Tags:
+          - Key: Name
+            Value: PrivateSubnet1
+  4. Configuring an Internet Gateway and Route Tables
+    InternetGateway:
+      Type: AWS::EC2::InternetGateway
+      Properties:
+        Tags:
+          - Key: Name
+            Value: MyInternetGateway
+    AttachGateway:
+      Type: AWS::EC2::VPCGatewayAttachment
+      Properties:
+        VpcId: !Ref MyVPC
+        InternetGatewayId: !Ref InternetGateway
+    PublicRouteTable:
+      Type: AWS::EC2::RouteTable
+      Properties:
+        VpcId: !Ref MyVPC
+    PublicRoute:
+      Type: AWS::EC2::Route
+      DependsOn: AttachGateway
+      Properties:
+        RouteTableId: !Ref PublicRouteTable
+        DestinationCidrBlock: 0.0.0.0/0
+        GatewayId: !Ref InternetGateway
+    RouteTableAssociation:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+        SubnetId: !Ref PublicSubnet1
+        RouteTableId: !Ref PublicRouteTable
+  5. Validating and Deploying the Template
+    aws cloudformation validate-template --template-body file://template.yaml
+  Once validated, you can deploy the template with:
+    aws cloudformation create-stack --stack-name MyNetworkStack --template-body file://template.yaml --capabilities CAPABILITY_NAMED_IAM
+  
